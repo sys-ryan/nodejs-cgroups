@@ -1,22 +1,33 @@
 const fs = require('fs');
 const path = require('path');
 const shell = require('shelljs');
+const { createGunzip } = require('zlib');
 
 const util = require('./cgUtil');
 const processUtil = require('./processUtil.js')
-
-console.log(process.argv);
 
 if(process.argv.length !== 5) {
     console.log(`node ${path.basename(__filename)} [cgroupName] [processName] [period]`)
     process.exit();
 }
 
-
 const cgName = process.argv[2];
 const pName = process.argv[3];
 const period = process.argv[4];
+let pid;
 
+processUtil.spawnChildProcess(pName)
+.then(childProcess => {
+    pid = childProcess.pid;
+    console.log(`[SYSTEM] ${pName}(${pid}) activate`);
+    processUtil.setSIGINTHandler(childProcess);
+    console.log(`[SYSTEM] SIGINT handler has been added.`);
+
+    util.createNewCgrop('memory', cgName);
+    util.setMemoryLimit(cgName, 999999999999);
+    util.addProcessToCgrop(pid, cgName)
+    console.log("Preparing for the evaluation...")
+});
 
 let cnt = 0;
 
@@ -28,7 +39,7 @@ function setCallback() {
     
     return function cb() {
         memory_usage = parseInt(util.getCgroupInfo(cgName).memory_usage)
-        memory_limit = parseInt(memory_usage + 1024*4);
+        memory_limit = parseInt(memory_usage + 1024*8);
         util.setMemoryLimit(cgName, memory_limit);
 
         data = util.getCgroupInfo(cgName);
@@ -53,7 +64,11 @@ function setCallback() {
 }
 
 
-setInterval(setCallback(),  period)
+
+setTimeout(() => {
+    setInterval(setCallback(),  period)
+}, 10000)
+
 
 
 

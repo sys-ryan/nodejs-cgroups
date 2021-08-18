@@ -1,4 +1,5 @@
 const shell = require("shelljs");
+const silentOpt = { silent : true }
 
 exports.getPidByName = (pName) => {
   return (result = shell.exec(`ps aux | grep ${pName}`, {
@@ -8,22 +9,23 @@ exports.getPidByName = (pName) => {
 
 exports.createNewCgrop = (type, cgName) => {
   if (type === "memory" || type === "cpu") {
-    shell.exec(`sudo mkdir /sys/fs/cgroup/${type}/${cgName}`);
-    shell.exec(`sudo ls -l /sys/fs/cgroup/${type} | grep ${cgName}`)
-    shell.exec(`sed -i 's/oom_kill_disable 0/oom_kill_disable 1/g' /sys/fs/cgroup/memory/${cgName}/memory.oom_control`)
-    console.log("cgroup created.");
-    shell.exec(`cat /sys/fs/cgroup/memory/${cgName}/memory.oom_control`)
-
+    shell.exec(`sudo mkdir /sys/fs/cgroup/${type}/${cgName}`, silentOpt);
+    shell.exec(`sudo ls -l /sys/fs/cgroup/${type} | grep ${cgName}`, silentOpt)
+    // shell.exec(`sed -i 's/oom_kill_disable 0/oom_kill_disable 1/g' /sys/fs/cgroup/memory/${cgName}/memory.oom_control`)
+    console.log(`[SYSTEM] cgroup "${cgName}" created or using the eixisting one.`);
+    // shell.exec(`cat /sys/fs/cgroup/memory/${cgName}/memory.oom_control`)
+    
   } else {
-    console.log("The first argument must be either 'memory' or 'cpu'");
+    console.log("[ERROR] The first argument must be either 'memory' or 'cpu'");
   }
 };
 
 exports.addProcessToCgrop = (pid, cgName) => {
   shell.exec(`echo ${pid} >> /sys/fs/cgroup/memory/${cgName}/tasks`);
   shell.exec(`echo -500 >> /proc/${pid}/oom_score_adj`);
-  shell.exec(`cat /proc/${pid}/oom_score_adj`);
-  console.log(`Process "${pid}" has been added to cgrop "${cgName}"`);
+  const oom_score_adj = shell.exec(`cat /proc/${pid}/oom_score_adj`, { silent: true }).stdout;
+  console.log(`[SYSTEM] Process "${pid}" has been added to cgrop "${cgName}"`);
+  console.log(`[SYSTEM] oom_score_adj : ${oom_score_adj}`)
 };
 
 exports.getCgroupMemoryLimit = (cgName) => {
