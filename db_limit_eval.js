@@ -1,10 +1,22 @@
 const fs = require('fs');
+const path = require('path');
 const shell = require('shelljs');
 
-const util = require('./util');
+const util = require('./cgUtil');
+const processUtil = require('./processUtil.js')
 
-const cgName = 'db-limit';
-const period = 100;
+console.log(process.argv);
+
+if(process.argv.length !== 5) {
+    console.log(`node ${path.basename(__filename)} [cgroupName] [processName] [period]`)
+    process.exit();
+}
+
+
+const cgName = process.argv[2];
+const pName = process.argv[3];
+const period = process.argv[4];
+
 
 let cnt = 0;
 
