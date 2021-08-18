@@ -16,7 +16,7 @@ function setCallback() {
     
     return function cb() {
         memory_usage = parseInt(util.getCgroupInfo(cgName).memory_usage)
-        memory_limit = parseInt(memory_usage + 1024*1024);
+        memory_limit = parseInt(memory_usage + 1024*4);
         util.setMemoryLimit(cgName, memory_limit);
 
          data = util.getCgroupInfo(cgName);
@@ -26,7 +26,7 @@ function setCallback() {
 
         if(!(data.memory_usage < data.memory_limit)) {
             console.log('triggered!');
-            util.setMemoryLimit(cgName,data.memory_usage, data.memory_usage + 1024 * 1024)
+            util.setMemoryLimit(cgName, data.memory_usage + 1024 * 1024)
             data = util.getCgroupInfo(cgName);
             // addData('./evaluation_data/0730/app_limit_1000.txt', `${data.memory_usage}:${data.memory_limit}:${data.tasks}\n`)
             console.log(`${data.memory_usage}:${data.memory_limit}:${data.tasks}\n`);
