@@ -58,7 +58,7 @@ exports.getCgroupInfo = (cgName) => {
   };
 };
 
-exports.setMemoryLimit = (cgName, size) => {
+exports.setMemoryLimit = (cgName, size, outputLog = false) => {
 
   const prevSize = this.getCgroupMemoryLimit(cgName);
   shell.exec(
@@ -67,7 +67,9 @@ exports.setMemoryLimit = (cgName, size) => {
 
   const setSize = this.getCgroupMemoryLimit(cgName);
   
-  console.log(`${cgName} - memory limit: ${prevSize} -> ${setSize}`);
+  if(outputLog) {
+    console.log(`${cgName} - memory limit: ${prevSize} -> ${setSize}`);
+  }
 };
 
 exports.getOOMScore = (cgName) => {
