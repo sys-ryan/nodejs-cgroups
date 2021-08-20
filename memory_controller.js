@@ -41,7 +41,7 @@ function setCallback() {
     
     return function cb() {
         memory_usage = parseInt(util.getCgroupInfo(cgName).memory_usage)
-        memory_limit = parseInt(memor_yusage + 1024*LIMIT_CONSTANC);
+        memory_limit = parseInt(memory_usage + 1024*LIMIT_CONSTANC);
         
         if(memory_limit < MIN_MEMORY_LIMIT) {
             memory_limit = MIN_MEMORY_LIMIT
