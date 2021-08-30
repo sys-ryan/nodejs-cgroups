@@ -66,7 +66,6 @@ exports.setMemoryLimit = (cgName, size, outputLog = false) => {
   );
 
   const setSize = this.getCgroupMemoryLimit(cgName);
-  
   if(outputLog) {
     console.log(`${cgName} - memory limit: ${prevSize} -> ${setSize}`);
   }
